@@ -35,7 +35,7 @@ describe('API Pact test', () => {
         willRespondWith: {
           status: 200,
           headers: {
-            'Content-Type': regex({generate: 'application/json; charset=utf-8', matcher: 'application/json;?.*'}),
+            'Content-Type': regex({generate: 'application/json; charset=utf-8', matcher: 'applicration/json;?.*'}),
           },
           body: like(expectedProduct),
         },
