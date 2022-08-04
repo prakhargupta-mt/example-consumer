@@ -20,7 +20,7 @@ describe('API Pact test', () => {
             // const expectedProduct = {id: '10', type: 'CREDIT_CARD', name: '28 Degrees'}
 
             // New field price introduced
-            const expectedProduct = { id: '10', type: 'CREDIT_CARD', name: '28 Degrees'}
+            const expectedProduct = {id: '10', type: 'CREDIT_CARD', name: '28 Degrees'}
 
             await mockProvider.addInteraction({
                 state: 'a product with ID 10 exists',
@@ -75,7 +75,44 @@ describe('API Pact test', () => {
             // make request to Pact mock server
             await expect(api.getProduct('11')).rejects.toThrow('Request failed with status code 404');
         });
+
+        test('product is updated', async () => {
+            const expectedProduct = {id: '10', type: 'CREDIT_CARD', name: '28 Degrees'}
+            const requestBody = {
+                type: 'LOAN_CARD',
+                name: 'APPLE_I_CARD',
+                version: 'v3',
+                color: 'orange',
+                price: 65.0
+            }
+            await mockProvider.addInteraction({
+                state: 'a product with ID 10 exists',
+                uponReceiving: 'a request to update a product',
+                withRequest: {
+                    method: 'POST',
+                    path: '/product/10',
+                    headers: {
+                        Authorization: like('Bearer 2019-01-14T11:34:18.045Z'),
+                    },
+                    body: like(requestBody),
+                },
+                willRespondWith: {
+                    status: 200,
+                    headers: {
+                        'Content-Type': regex({
+                            generate: 'application/json; charset=utf-8',
+                            matcher: 'application/json;?.*'
+                        }),
+                    },
+                    body: like(expectedProduct),
+                },
+            });
+
+            const api = new API(mockProvider.mockService.baseUrl);
+            const product = await api.postProduct('10', requestBody);
+        })
     });
+
     describe('retrieving products', () => {
         test('products exists', async () => {
             // set up Pact interactions
